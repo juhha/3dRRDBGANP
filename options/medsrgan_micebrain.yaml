@@ -1,0 +1,54 @@
+data_opt:
+    source: brain_mice
+    start_pixdim: [0.025,0.025,0.025]
+    target_scale_level: 2 # this has to correspond with inverse_scale_factors
+    inverse_scale_factors: [[2,2,2],[2,2,2]]
+    downsize_type: kspace # kspace, trilinear, nearest
+    slide_depth: False # skip slide for downsampling depth-dimension
+    preprop_intensity:
+        type: minmax
+        minv: 0
+        maxv: 1
+    image_key: image
+train_opt:
+    batch_size: 1
+    num_patch: 2
+    patch_size: [96,96,96]
+    max_epochs: 1000
+    step_size: 100
+    start_level: 2
+model_opt:
+    generator_type: medsr
+    discriminator_type: relativistic_disc
+    generator:
+        spatial_dims: 3
+        in_channels: 1
+        out_channels: 1
+        blocks: 8
+    discriminator:
+        spatial_dims: 3
+        in_channels: 1
+        n_feats: 32 # original is 64, but reduced to 32 to decrease # of params for 3D model
+        img_size: [96,96,96]
+loss_opt:
+    generator:
+        pixel:
+            params:
+                loss_fn: l1
+            loss_weight: 1
+        perception:
+            params:
+                return_nodes: ['features.3', 'features.8', 'features.17', 'features.26', 'features.35']
+                weight_nodes: [0.5, 0.25, 0.125, 0.0625, 0.0625]
+                loss_fn: l1
+                views: ['axial']
+            loss_weight: 1
+        adv:
+            # params: {relativistic: True}
+            params: {}
+            loss_weight: 0.01
+    discriminator:
+        disc:
+            # params: {relativistic: True}
+            params: {}
+            loss_weight: 1

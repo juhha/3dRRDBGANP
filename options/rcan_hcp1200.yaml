@@ -1,0 +1,38 @@
+# ref - https://github.com/XPixelGroup/BasicSR/blob/master/options/train/RCAN/train_RCAN_x2.yml
+data_opt:
+    source: hcp1200
+    start_pixdim: [0.7,0.7,0.7]
+    target_scale_level: 2 # this has to correspond with inverse_scale_factors
+    inverse_scale_factors: [[2,2,2],[2,2,2]]
+    downsize_type: kspace # kspace, trilinear, nearest
+    slide_depth: False # skip slide for downsampling depth-dimension
+    preprop_intensity:
+        type: minmax
+        minv: 0
+        maxv: 1
+    image_key: t2
+train_opt:
+    batch_size: 1
+    num_patch: 2
+    patch_size: [96,96,96]
+    max_epochs: 1000
+    step_size: 100
+    start_level: 2
+model_opt:
+    generator_type: rcan
+    generator:
+        spatial_dims: 3
+        num_in_ch: 1
+        num_out_ch: 1
+        num_feat: 64
+        num_group: 10
+        num_block: 16
+        squeeze_factor: 16
+        upscale: 4
+        res_scale: 1
+loss_opt:
+    generator:
+        pixel:
+            params:
+                loss_fn: l1
+            loss_weight: 1
